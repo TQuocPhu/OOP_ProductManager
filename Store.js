@@ -104,6 +104,19 @@ class Store {
             this.listProduct[index] = newProduct;
         }
     }
+
+    getListByName(name){
+        let result = [];
+        for(let i = 0; i< this.listProduct.length; i++) {
+            let product = this.listProduct[i];
+            if(product.name.toLowerCase().includes(name.toLowerCase())) {
+                result.push(product);
+            }
+        }
+        return result;
+    }
+
+    
     saveToStorage() {
         localStorage.setItem("productList", JSON.stringify(this.listProduct));
     }

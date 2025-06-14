@@ -111,13 +111,13 @@ let filteredList = null;
 myStore.loadFromStorage(); // Tải dữ liệu từ localStorage
 // Hàm khởi tạo giao diện và hiển thị danh sách sản phẩm
 function renderProduct() {
-    const list_product = filteredList ?? myStore.getListProducts();
+    let list_product = filteredList ?? myStore.getListProducts();
     let html = ``;
     for (let i = 0; i < list_product.length; i++) {
         let product = list_product[i];
         html += `
             <tr>
-                <td>${product.id}</td>
+                <td>${i + 1}</td>
                 <td>${product.name}</td>
                 <td>${Number(product.price)}</td>
                 <td>${Number(product.quantity)}</td>
@@ -189,7 +189,7 @@ function updateProduct(id) {
 }
 
 function showFormUpdate(id) {
-    const product = myStore.getProductById(id);
+    let product = myStore.getProductById(id);
     document.getElementById('ui').innerHTML = `
         <div class="card mb-5">
             <div class="card-header bg-primary text-white">
@@ -221,23 +221,36 @@ function showFormUpdate(id) {
     `;
 }
 
-function searchProduct() {
-    const keyword = document.getElementById("searchInput").value.toLowerCase().trim();
-    if (keyword === "") {
-        filteredList = null;
-    } else {
-        const allProducts = myStore.getListProducts();
-        filteredList = allProducts.filter(p => {
-            return (
-                p.name.toLowerCase().includes(keyword) ||p.price.toString().includes(keyword) || 
-                p.quantity.toString().includes(keyword) // toString() để so sánh với giá trị nhập vào, toString() chuyển đổi số thành chuỗi
-            );
-        });
-    }
+
+function searchProduct(keyword, minPrice, maxPrice) {
+    let allProducts = myStore.getListProducts();
+
+    filteredList = allProducts.filter(p => {
+        const matchKeyword =
+            keyword === "" ||
+            p.name.toLowerCase().includes(keyword) ||
+            p.price.toString().includes(keyword) ||
+            p.quantity.toString().includes(keyword);
+
+        const matchPrice = p.price >= minPrice && p.price <= maxPrice;
+
+        return matchKeyword && matchPrice;
+    });
+
     renderProduct();
 }
 
-const defaultFormHTML = document.getElementById('ui').innerHTML;
+function search(){
+    let keyword = document.getElementById("searchInput").value.toLowerCase().trim();
+    let minPrice = parseFloat(document.getElementById("minPrice").value);
+    let maxPrice = parseFloat(document.getElementById("maxPrice").value);
+    if(!minPrice) minPrice = -Infinity;
+    if(!maxPrice) maxPrice = Infinity;
+
+    searchProduct(keyword, minPrice, maxPrice);
+}
+
+let defaultFormHTML = document.getElementById('ui').innerHTML;
 
 function restoreAddForm() {
     document.getElementById('ui').innerHTML = defaultFormHTML;
@@ -247,3 +260,9 @@ myStore.saveToStorage();
 // myStore.loadFromStorage();
 // Khi tải trang
 renderProduct();
+
+//Dự án cuối module: 
+// Quản lý: tương tự demo, tìm hiểu thêm về giao diện, quản lý nhiều chủ thể hơn.
+// Bí idea => hỏi Linh
+//hoặc
+//Mini game: bắn bóng, flappy bird, game đơn giản
